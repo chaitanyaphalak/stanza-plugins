@@ -1,0 +1,16 @@
+#TODO is it worth including parameters, since this isn't necessarily meant for direct usage?
+
+# Set Defaults
+# {{$path := default "/var/log/nginx/access.log*" .access_log_path}}
+# {{$start_at := default "end" .start_at}}
+
+# Pipeline Template
+pipeline:
+  - type: file_input
+    include:
+      - '{{ $path }}'
+    start_at: '{{ $start_at }}'
+    labels:
+      log_type: 'nginx.access'
+      plugin_id: '{{ .id }}'
+    output: {{ .output }}

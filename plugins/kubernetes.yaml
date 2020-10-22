@@ -23,21 +23,11 @@ parameters:
       - beginning
       - end
     default: end
-  stdout_output:
-    label: Stdout Output
-    description: ID of operator to send stdout logs to
-    type: string
-  stderr_output:
-    label: Stderr Output
-    description: ID of operator to send stderr logs to
-    type: string
 
 # Set Defaults
 # {{ $cluster_name := default "" .cluster_name }}
 # {{ $container_log_path := default "/var/log/containers/*" .container_log_path }}
 # {{ $start_at := default "end" .start_at }}
-# {{ $stderr_output := call .addNamespace .stderr_output | default .output }}
-# {{ $stdout_output := call .addNamespace .stdout_output | default .output }}
 
 # Pipeline Template
 pipeline:
@@ -128,23 +118,23 @@ pipeline:
   - id: add_labels_router
     type: router
     routes:
-      - output: output_router
+      - output: {{ .output }}
         expr: '$labels["k8s_pod_label/component"] == "kube-controller-manager"'
         labels:
           log_type: 'k8s.controller'
-      - output: output_router
+      - output: {{ .output }}
         expr: '$labels["k8s_pod_label/component"]  == "kube-scheduler"'
         labels:
           log_type: 'k8s.scheduler'
-      - output: output_router
+      - output: {{ .output }}
         expr: '$labels["k8s_pod_label/component"] == "kube-apiserver"'
         labels:
           log_type: 'k8s.apiserver'
-      - output: output_router
+      - output: {{ .output }}
         expr: '$labels["k8s_pod_label/component"] startsWith "kube-proxy"'
         labels:
           log_type: 'k8s.proxy'
-      - output: output_router
+      - output: {{ .output }}
         expr: true
         labels:
           log_type: 'k8s.container'
@@ -185,7 +175,7 @@ pipeline:
     routes:
       - output: message_regex_parser
         expr: '$record.message matches "^\\w\\d{4}"'
-      - output: output_router
+      - output: {{ .output }}
         expr: true
 
   # message field seems to match expected format.
@@ -204,11 +194,4 @@ pipeline:
     timestamp:
       parse_from: timestamp
       layout: '%m%d %H:%M:%S.%s'
-    output: output_router
-  - id: output_router
-    type: router
-    routes:
-      - expr: "$record.stream == 'stdout'"
-        output: $stdout_output
-      - expr: "$record.stream == 'stderr'"
-        output: {{ $stderr_output }}
+    output: {{ .output }}

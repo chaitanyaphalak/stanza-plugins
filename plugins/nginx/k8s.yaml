@@ -1,0 +1,13 @@
+pipeline:
+  - type: router
+    routes:
+      - expr: "$record.stream == 'stdout'"
+        output: nginx.access_parser
+        # TODO need a way to pass parameters to nginx.access_parser (especially output)
+        parameters:
+          output: {{ .output }}
+      - expr: "$record.stream == 'stderr'"
+        output: nginx.error_parser
+        # TODO need a way to pass parameters to nginx.error_parser (especially output)
+        parameters:
+          output: {{ .output }}

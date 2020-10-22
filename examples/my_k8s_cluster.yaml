@@ -1,28 +1,14 @@
 pipeline:
   - type: kubernetes
     cluster_name: my_cluster
-    stdout_output: stdout_router
-    stderr_output: stderr_router
-  - id: stdout_router
+  - id: application_router
     type: router
     routes:
     - expr: $resource["container.name"] == "nginx-ingress-controller"
-      output: nginx.access_parser 
-      # TODO how to explicitly tell nginx_parser where it should output? Possibly need:
-        # parameters:
-        #    output: my_destination
-    - expr: "true"
-      output: my_destination
-  - id: stderr_router
-    type: router
-    routes:
-    - expr: $resource["container.name"] == "nginx-ingress-controller"
-      output: nginx.error_parser 
-      # TODO how to explicitly tell nginx_parser where it should output? Possibly need:
-        # parameters:
-        #    output: my_destination
-    - expr: "true"
-      output: my_destination
+      output: nginx.k8s
+      # TODO need a way to pass parameters to nginx.k8s (especially output)
+      parameters:
+          output: my_destination
   - id: my_destination
     type: example_destination
     foo: bar

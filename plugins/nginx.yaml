@@ -33,13 +33,15 @@ parameters:
 
 # Set Defaults
 # {{$enable_access_log := default true .enable_access_log}}
+# {{$access_log_path := default "/var/log/nginx/access.log*" .access_log_path}}
 # {{$enable_error_log := default true .enable_error_log}}
+# {{$error_log_path := default "/var/log/nginx/error.log*" .error_log_path}}
 # {{$start_at := default "end" .start_at}}
 
 # Pipeline Template
 pipeline:
   #{{ if $enable_access_log }}
-  - id: access_file_input
+  - id: nginx_access_reader
     type: file_input
     include:
       - {{ $access_log_path }}
@@ -52,7 +54,7 @@ pipeline:
   #{{ end }}
 
   #{{ if $enable_error_log }}
-  - id: error_file_input
+  - id: nginx_error_reader
     type: file_input
     include:
       - {{ $error_log_path }}

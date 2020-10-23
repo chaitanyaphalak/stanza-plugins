@@ -39,17 +39,27 @@ parameters:
 # Pipeline Template
 pipeline:
   #{{ if $enable_access_log }}
-  - type: nginx.access_file_input
-    path: {{ $access_log_path }}
+  - type: file_input
+    include:
+      - {{ $access_log_path }}
     start_at: {{ $start_at }}
+    labels:
+      log_type: 'nginx.access'
+      plugin_id: '{{ .id }}'
   - type: nginx.access_parser
     output: {{ .output }}
   #{{ end }}
 
   #{{ if $enable_error_log }}
-  - id: nginx.error_file_input
-    path: {{ $error_log_path }}
+  - type: file_input
+    include:
+      - {{ $error_log_path }}
     start_at: {{ $start_at }}
+    multiline:
+      line_start_pattern: '\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2} \[\w+\] (?P<pid>\d+).(?P<tid>\d+): '
+    labels:
+      log_type: 'nginx.error'
+      plugin_id: '{{ .id }}'
   - type: nginx.error_parser
     output: {{ .output }}
   #{{ end }}

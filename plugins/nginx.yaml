@@ -7,7 +7,7 @@ parameters:
     description: Enable to collect Nginx access slogs
     type: bool
     default: true
-  access_log_path: # TODO this is inherited from the nested plugin. How to manage?
+  access_log_path:
     label: Access Log Path
     description: Path to access log file
     type: string
@@ -17,7 +17,7 @@ parameters:
     description: Enable to collect Nginx error logs
     type: bool
     default: true
-  error_log_path: # TODO this is inherited from the nested plugin. How to manage?
+  error_log_path:
     label: Error Log Path
     description: Path to error log file
     type: string

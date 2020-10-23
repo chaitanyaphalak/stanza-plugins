@@ -1,0 +1,26 @@
+pipeline:
+  - type: router
+    routes:
+      - expr: "$record.stream == 'stdout'"
+        output: nginx.access_parser
+      - expr: "$record.stream == 'stderr'"
+        output: nginx.error_parser
+  - id: access_regex_parser
+    type: regex_parser
+    regex: '^(?P<remote>[^ ]*) (?P<host>[^ ]*) (?P<user>[^ ]*) \[(?P<time>[^\]]*)\] "(?P<method>\S+)(?: +(?P<path>[^\"]*?)(?: +\S*)?)?" (?P<code>[^ ]*) (?P<size>[^ ]*)(?: "(?P<referrer>[^\"]*)" "(?P<agent>[^\"]*)"(?:\s+(?P<http_x_forwarded_for>[^ ]+))?)?$'
+    timestamp:
+      parse_from: time
+      layout: '%d/%b/%Y:%H:%M:%S %z'
+    output: {{ .output }}
+  - id: error_regex_parser
+    type: regex_parser
+    regex: '^(?P<time>\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}) \[(?P<log_level>\w+)\] (?P<pid>\d+).(?P<tid>\d+): (?P<message>.*)'
+    timestamp:
+      parse_from: time
+      layout: '%Y/%m/%d %T'
+    severity:
+      parse_from: log_level
+      mapping:
+        critical: crit
+        emergency: emerg
+    output: {{ .output }}

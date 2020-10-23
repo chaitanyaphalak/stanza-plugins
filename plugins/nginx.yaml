@@ -39,7 +39,8 @@ parameters:
 # Pipeline Template
 pipeline:
   #{{ if $enable_access_log }}
-  - type: file_input
+  - id: access_file_input
+    type: file_input
     include:
       - {{ $access_log_path }}
     start_at: {{ $start_at }}
@@ -51,7 +52,8 @@ pipeline:
   #{{ end }}
 
   #{{ if $enable_error_log }}
-  - type: file_input
+  - id: error_file_input
+    type: file_input
     include:
       - {{ $error_log_path }}
     start_at: {{ $start_at }}
